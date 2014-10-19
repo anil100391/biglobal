@@ -15,7 +15,7 @@
 
 #include <data.h>
 #include <math.h>
-#include <petscksp.h>
+
 
 int nl_eq_solver(int, int, double *);
 void weights(double, double *, int, int, int, double **);
@@ -141,7 +141,7 @@ int fd_diffr_mat(ndr_data_t *arg2)
     free_vec((void *)xsliced,0,sizeof(double));
     free_mat2((void **)c, 0, sizeof(double));
     
-/****************Construct 1-d dx and d2x matrix******************/
+    /****************Construct 1-d dx and d2x matrix******************/
     
     si = (int *)vec_alloc(nx+1,0,sizeof(int));
     get_shift(qx,nx,si);
@@ -171,8 +171,8 @@ int fd_diffr_mat(ndr_data_t *arg2)
     free_vec((void *)xsliced,0,sizeof(double));
     free_mat2((void **)c, 0, sizeof(double));
 
- //  Construction of biglobal differentiation matrices.
- //  Construct Dy and D2y
+   //  Construction of biglobal differentiation matrices.
+   //  Construct Dy and D2y
     nz = qy+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dy)); CHKERRQ(ierr);
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->D2y)); CHKERRQ(ierr);
@@ -204,7 +204,7 @@ int fd_diffr_mat(ndr_data_t *arg2)
     ierr = MatAssemblyEnd(arg2->D2y,MAT_FINAL_ASSEMBLY);
 
 
- //  Construct Dx and D2x
+   //  Construct Dx and D2x
     nz = qx+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dx)); CHKERRQ(ierr);
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->D2x)); CHKERRQ(ierr);
@@ -236,7 +236,7 @@ int fd_diffr_mat(ndr_data_t *arg2)
     ierr = MatAssemblyBegin(arg2->D2x,MAT_FINAL_ASSEMBLY);
     ierr = MatAssemblyEnd(arg2->D2x,MAT_FINAL_ASSEMBLY);
  
- //  construct Dxy = Dx.Dy
+   //  construct Dxy = Dx.Dy
      nz = (nx+1)*(ny+1);
      ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dxy)); CHKERRQ(ierr);
  
@@ -244,8 +244,6 @@ int fd_diffr_mat(ndr_data_t *arg2)
  
      ierr = MatAssemblyBegin(arg2->Dxy,MAT_FINAL_ASSEMBLY);
      ierr = MatAssemblyEnd(arg2->Dxy,MAT_FINAL_ASSEMBLY);
- 
- 
  
      free_vec((void *)idxn,0,sizeof(int));
      free_vec((void *)idyn,0,sizeof(int));
@@ -257,69 +255,6 @@ int fd_diffr_mat(ndr_data_t *arg2)
     return 0;
 }
 
-
-//****************************************************************************//
-// int helmholtz(ndr_data_t *arg2)
-// {
-//     PetscErrorCode ierr;
-//     int nx=arg2->grid.nx, ny=arg2->grid.ny;
-//     int i,j,k,pos;
-//     PetscScalar one=1, zero=0;
-//     ierr = MatDuplicate(arg2->D2x,MAT_COPY_VALUES,&(arg2->A)); CHKERRQ(ierr);
-//     ierr = MatCopy(arg2->D2x,arg2->A, DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);
-//     ierr = MatAXPY(arg2->A,1.0,arg2->D2y,DIFFERENT_NONZERO_PATTERN); CHKERRQ(ierr);  
-// 
-// //  Set boundary conditions 
-// 
-//     for (i=0; i<nx+1; i=i+nx) {
-//         for (j=0; j<ny+1; j++) {
-// 
-//             for (k=i*(ny+1); k<i*(ny+1)+ny+1; k++) {
-//                 pos = i*(ny+1) + j;
-//                 if (k == pos)
-//                 { ierr = MatSetValues(arg2->A,1,&pos,1,&k,&one,INSERT_VALUES); CHKERRQ(ierr);}
-//                 else
-//                 { ierr = MatSetValues(arg2->A,1,&pos,1,&k,&zero,INSERT_VALUES); CHKERRQ(ierr);}
-//             }
-//             
-//             if (i==0) {
-//                 for (k=ny+1+j; k<(nx+1)*(ny+1); k=k+ny+1) {
-//                     pos = i*(ny+1) + j;
-//                     ierr = MatSetValues(arg2->A,1,&pos,1,&k,&zero,INSERT_VALUES); CHKERRQ(ierr);
-//                 }
-//             }
-//             else if (i==nx) {
-//                 for (k=0+j; k<nx*(ny+1); k=k+ny+1) {
-//                     pos = i*(ny+1) + j;
-//                     ierr = MatSetValues(arg2->A,1,&pos,1,&k,&zero,INSERT_VALUES); CHKERRQ(ierr);
-//                 }
-//             }
-//         }
-//     }
-// 
-//     for (i=1; i<nx; i++) {
-//         for (j=0; j<ny+1; j=j+ny) {
-//             
-//             for (k=0+j; k<(nx+1)*(ny+1); k=k+ny+1) {
-//                 pos = i*(ny+1) + j;
-//                 ierr = MatSetValues(arg2->A,1,&pos,1,&k,&zero,INSERT_VALUES); CHKERRQ(ierr);
-//             }
-//             for (k=i*(ny+1); k<i*(ny+1)+ny+1; k++) {
-//                 pos = i*(ny+1) + j;
-//                 if (k == pos)
-//                 { ierr = MatSetValues(arg2->A,1,&pos,1,&k,&one,INSERT_VALUES); CHKERRQ(ierr);}
-//                 else
-//                 { ierr = MatSetValues(arg2->A,1,&pos,1,&k,&zero,INSERT_VALUES); CHKERRQ(ierr);}
-//             }
-//         }
-//     }
-// //  Assemble matrix A
-//     ierr = MatAssemblyBegin(arg2->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-//     ierr = MatAssemblyEnd(arg2->A,MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-//     
-//     return 0;
-// }
-//
 
 void weights(double z, double *x, int n, int nd, int m, double **c) {
 

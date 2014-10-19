@@ -2,7 +2,6 @@
 static char help[] = "You are doomed";
 #include <stdio.h>
 #include <math.h>
-#include <petscksp.h>
 #include <slepceps.h>
 #include <data.h>
 

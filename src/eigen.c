@@ -1,3 +1,10 @@
+/* This file contains the definition of function eigen_solver meant to
+ * solve the eigenvalues problem Aq = wBq. This function has been obtained
+ * from modifying ex1.c of slepc examples. This is not very robust and need
+ * to be modified. This is being used for quick eigenvalue problem tests 
+ * during project development.
+ */
+
 #include <data.h>
 #include <slepceps.h>
 

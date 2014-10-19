@@ -47,6 +47,7 @@ struct grid2d {
  */
 typedef struct ndr_data_s {
     PetscScalar re;
+    PetscScalar pr;
     struct grid2d grid;
     Mat Dy;
     Mat Dx;

@@ -1,5 +1,4 @@
 #include <data.h>
-#include <petscksp.h>
 
 //****************************************************************************//
 int helmholtz(ndr_data_t *arg2)

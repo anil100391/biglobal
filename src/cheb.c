@@ -14,8 +14,8 @@
 
 #include <data.h>
 #include <math.h>
-#include <slepceps.h>
-//****************************************************************************//
+
+/*****************************************************************************/
 int cheb_grid(ndr_data_t *arg)
 {
     PetscErrorCode ierr;
@@ -64,18 +64,14 @@ int cheb_grid(ndr_data_t *arg)
     return 0;
 }
 
-//****************************************************************************//
+/*****************************************************************************/
 
 int cheb_diffr_mat(ndr_data_t *arg2)
 {
     int i, j, k, nx=arg2->grid.nx, ny=arg2->grid.ny;
     int nz, mat_dim=(nx+1)*(ny+1);
-//    int *idxm[nx+1], *idxn[nx+1];
     int *idxm, *idxn;
-//    int idym[ny+1], idyn[ny+1];
     int *idym, *idyn;
-//    PetscScalar dx[nx+1][nx+1], dy[ny+1][ny+1];
-//    PetscScalar d2x[nx+1][nx+1], d2y[ny+1][ny+1];
     PetscScalar **dx, **dy;
     PetscScalar **d2x, **d2y;
     PetscScalar sum=0;
@@ -91,6 +87,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
     d2x  = (PetscScalar **)mat2_alloc(nx+1,nx+1,0,sizeof(PetscScalar));
     d2y  = (PetscScalar **)mat2_alloc(ny+1,ny+1,0,sizeof(PetscScalar));
 
+    /*******************Construct 1d-differentiation matrices*****************/
     for (i=0; i<ny+1; i++) {
         for (j=0; j<ny+1; j++) {
             if (i==j) {
@@ -122,8 +119,9 @@ int cheb_diffr_mat(ndr_data_t *arg2)
     }
 
 
-//  Construction of biglobal differentiation matrices.
-//  Construct Dy
+    /**************Construct Biglobal differentiatiion matrices***************/
+    
+    // Construct Dy
     nz = ny+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dy)); CHKERRQ(ierr);
 
@@ -138,7 +136,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
     ierr = MatAssemblyBegin(arg2->Dy,MAT_FINAL_ASSEMBLY);
     ierr = MatAssemblyEnd(arg2->Dy,MAT_FINAL_ASSEMBLY);
 
-//  Construct Dx
+    //  Construct Dx
     nz = nx+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dx)); CHKERRQ(ierr);
 
@@ -153,7 +151,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
     ierr = MatAssemblyBegin(arg2->Dx,MAT_FINAL_ASSEMBLY);
     ierr = MatAssemblyEnd(arg2->Dx,MAT_FINAL_ASSEMBLY);
 
-//  construct Dxy = Dx.Dy
+    //  construct Dxy = Dx.Dy
     nz = (nx+1)*(ny+1);
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->Dxy)); CHKERRQ(ierr);
 
@@ -164,7 +162,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
 
 
 
-//  construct d2x = dx.dx and d2y = dy.dy
+    //  construct d2x = dx.dx and d2y = dy.dy
     for (i=0; i<nx+1; i++) {
         for (j=0; j<nx+1; j++) {
             sum = 0;
@@ -187,7 +185,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
 
 
 
-//  Construct D2y
+   //  Construct D2y
     nz = ny+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->D2y)); CHKERRQ(ierr);
 
@@ -202,7 +200,7 @@ int cheb_diffr_mat(ndr_data_t *arg2)
     ierr = MatAssemblyBegin(arg2->D2y,MAT_FINAL_ASSEMBLY);
     ierr = MatAssemblyEnd(arg2->D2y,MAT_FINAL_ASSEMBLY);
 
-//  Construct D2x
+    //  Construct D2x
     nz = nx+1;
     ierr = MatCreateSeqAIJ(PETSC_COMM_SELF,mat_dim,mat_dim,nz,PETSC_NULL,&(arg2->D2x)); CHKERRQ(ierr);
 
